@@ -1,9 +1,9 @@
 package io.github.phantamanta44.commands4a;
 
 import io.github.phantamanta44.commands4a.command.ICommandContext;
-import io.github.phantamanta44.commands4a.command.ICommandEngine;
+import io.github.phantamanta44.commands4a.command.CommandEngine;
 
-public class EngineDescriptor<T extends ICommandContext, E extends ICommandEngine<T>> {
+public class EngineDescriptor<T extends ICommandContext, E extends CommandEngine<T>> {
 
     private final String name, className;
 

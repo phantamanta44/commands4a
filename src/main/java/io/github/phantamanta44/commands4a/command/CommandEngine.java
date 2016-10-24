@@ -6,15 +6,17 @@ import io.github.phantamanta44.commands4a.exception.NoSuchCommandException;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-public interface ICommandEngine<T extends ICommandContext> {
+public abstract class CommandEngine<T extends ICommandContext> {
 
-    void scan();
+    public void scan() {
+        // TODO Implement
+    }
 
-    void scan(String... packages);
+    public void scan(String... packages) {
+        // TODO Implement
+    }
 
-    void execute(T context, String command, String[] args) throws NoSuchCommandException, InvalidSyntaxException;
-
-    default void execute(T context, String command) throws NoSuchCommandException, InvalidSyntaxException {
+    public void execute(T context, String command) throws NoSuchCommandException, InvalidSyntaxException {
         if (command == null)
             throw new NullPointerException();
         if (command.length() == 0)
@@ -27,6 +29,8 @@ public interface ICommandEngine<T extends ICommandContext> {
         }
     }
 
-    Predicate<T> resolvePrereq(String prereq);
+    abstract void execute(T context, String command, String[] args) throws NoSuchCommandException, InvalidSyntaxException;
+
+    abstract Prerequisite<T> resolvePrereq(String prereq);
 
 }

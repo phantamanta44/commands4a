@@ -1,7 +1,7 @@
 package io.github.phantamanta44.commands4a;
 
 import io.github.phantamanta44.commands4a.command.ICommandContext;
-import io.github.phantamanta44.commands4a.command.ICommandEngine;
+import io.github.phantamanta44.commands4a.command.CommandEngine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,13 +12,13 @@ public class CommandEngineProvider { // TODO Document everything
 
     private static final CommandEngineProvider INSTANCE = new CommandEngineProvider();
 
-    public static <T extends ICommandContext, E extends ICommandEngine<T>> E getEngine(EngineDescriptor<T, E> descriptor) {
+    public static <T extends ICommandContext, E extends CommandEngine<T>> E getEngine(EngineDescriptor<T, E> descriptor) {
         if (descriptor == null)
             throw new NullPointerException();
         return INSTANCE.getEngine0(descriptor);
     }
 
-    public static <T extends ICommandContext, E extends ICommandEngine<T>> void register(EngineDescriptor<T, E> descriptor, Supplier<E> factory) {
+    public static <T extends ICommandContext, E extends CommandEngine<T>> void register(EngineDescriptor<T, E> descriptor, Supplier<E> factory) {
         if (descriptor == null)
             throw new NullPointerException();
         if (factory == null)
@@ -26,14 +26,14 @@ public class CommandEngineProvider { // TODO Document everything
         INSTANCE.register0(descriptor, factory);
     }
 
-    private final Map<String, Supplier<? extends ICommandEngine>> registry;
+    private final Map<String, Supplier<? extends CommandEngine>> registry;
 
     private CommandEngineProvider() {
         this.registry = new HashMap<>();
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends ICommandContext, E extends ICommandEngine<T>> E getEngine0(EngineDescriptor<T, E> descriptor) {
+    private <T extends ICommandContext, E extends CommandEngine<T>> E getEngine0(EngineDescriptor<T, E> descriptor) {
         try {
             if (registry.containsKey(descriptor.getName()))
                 return (E) registry.get(descriptor.getName()).get();
@@ -47,7 +47,7 @@ public class CommandEngineProvider { // TODO Document everything
         }
     }
 
-    private <T extends ICommandContext, E extends ICommandEngine<T>> void register0(EngineDescriptor<T, E> descriptor, Supplier<E> factory) {
+    private <T extends ICommandContext, E extends CommandEngine<T>> void register0(EngineDescriptor<T, E> descriptor, Supplier<E> factory) {
         if (!registry.containsKey(descriptor.getName()))
             registry.put(descriptor.getName(), factory);
         throw new IllegalArgumentException("Engine already registered for descriptor: " + descriptor.getName());
