@@ -88,8 +88,8 @@ public abstract class CommandEngine<T extends ICommandContext> {
         } catch (IllegalAccessException ignored) { }
     }
 
-    abstract Prerequisite<T> resolvePrereq(String prereq);
+    protected abstract Prerequisite<T> resolvePrereq(String prereq);
 
-    abstract IArgumentTokenizer tokenize(String[] args);
+    protected abstract IArgumentTokenizer tokenize(String[] args);
 
 }
