@@ -18,11 +18,12 @@ public class CommandExecution<T extends ICommandContext> {
     private final Command command;
     private final String description;
     private final String[] aliases;
-    private final Collection<Prerequisite> prereqs;
+    private final Collection<Prerequisite<T>> prereqs;
     private final Parameter[] params;
 
     public CommandExecution(Method executor, CommandEngine<T> engine) {
         this.executor = executor;
+        this.executor.setAccessible(true);
         this.command = executor.getAnnotation(Command.class);
         Desc descAnnot = executor.getAnnotation(Desc.class);
         this.description = descAnnot != null ? descAnnot.value() : "No description.";
@@ -51,7 +52,7 @@ public class CommandExecution<T extends ICommandContext> {
         return aliases;
     }
 
-    public Collection<Prerequisite> getPrereqs() {
+    public Collection<Prerequisite<T>> getPrereqs() {
         return prereqs;
     }
 

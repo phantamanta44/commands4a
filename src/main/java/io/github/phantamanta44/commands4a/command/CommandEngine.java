@@ -1,16 +1,17 @@
 package io.github.phantamanta44.commands4a.command;
 
 import io.github.phantamanta44.commands4a.annot.Command;
+import io.github.phantamanta44.commands4a.annot.Omittable;
+import io.github.phantamanta44.commands4a.args.IArgumentTokenizer;
+import io.github.phantamanta44.commands4a.exception.CommandExecutionException;
 import io.github.phantamanta44.commands4a.exception.InvalidSyntaxException;
 import io.github.phantamanta44.commands4a.exception.NoSuchCommandException;
+import io.github.phantamanta44.commands4a.exception.PrereqNotMetException;
 import io.github.phantamanta44.nomreflect.MethodFilter;
 import io.github.phantamanta44.nomreflect.Reflect;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class CommandEngine<T extends ICommandContext> {
@@ -43,7 +44,7 @@ public abstract class CommandEngine<T extends ICommandContext> {
         }
     }
 
-    public void execute(T context, String command) throws NoSuchCommandException, InvalidSyntaxException {
+    public void execute(T context, String command) throws NoSuchCommandException, InvalidSyntaxException, PrereqNotMetException {
         if (command == null)
             throw new NullPointerException();
         if (command.length() == 0)
@@ -56,8 +57,39 @@ public abstract class CommandEngine<T extends ICommandContext> {
         }
     }
 
-    abstract void execute(T context, String command, String[] args) throws NoSuchCommandException, InvalidSyntaxException;
+    public void execute(T context, String cmdName, String[] args) throws NoSuchCommandException, InvalidSyntaxException, PrereqNotMetException {
+        if (!aliasMap.containsKey(cmdName))
+            throw new NoSuchCommandException(cmdName);
+        CommandExecution<T> command = commands.get(aliasMap.get(cmdName));
+        for (Prerequisite<T> prereq : command.getPrereqs()) {
+            if (!prereq.test(context))
+                throw new PrereqNotMetException(prereq);
+        }
+        Object[] params = new Object[command.getParams().length];
+        IArgumentTokenizer tokenizer = tokenize(args);
+        for (int i = 0; i < params.length; i++) {
+            if (command.getParams()[i].getType() == String[].class)
+                params[i] = args;
+            else if (ICommandContext.class.isAssignableFrom(command.getParams()[i].getType()))
+                params[i] = context;
+            else {
+                try {
+                    params[i] = tokenizer.nextOfType(command.getParams()[i].getType());
+                } catch (InvalidSyntaxException e) {
+                    if (!command.getParams()[i].isAnnotationPresent(Omittable.class))
+                        throw e;
+                }
+            }
+        }
+        try {
+            command.getExecutor().invoke(null, params);
+        } catch (InvocationTargetException e) {
+            throw new CommandExecutionException(e.getCause());
+        } catch (IllegalAccessException ignored) { }
+    }
 
     abstract Prerequisite<T> resolvePrereq(String prereq);
+
+    abstract IArgumentTokenizer tokenize(String[] args);
 
 }
