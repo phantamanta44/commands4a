@@ -66,7 +66,7 @@ public abstract class CommandEngine<T extends ICommandContext> {
                 throw new PrereqNotMetException(prereq);
         }
         Object[] params = new Object[command.getParams().length];
-        IArgumentTokenizer tokenizer = tokenize(args);
+        IArgumentTokenizer tokenizer = tokenize(args, context);
         for (int i = 0; i < params.length; i++) {
             if (command.getParams()[i].getType() == String[].class)
                 params[i] = args;
@@ -90,6 +90,6 @@ public abstract class CommandEngine<T extends ICommandContext> {
 
     protected abstract Prerequisite<T> resolvePrereq(String prereq);
 
-    protected abstract IArgumentTokenizer tokenize(String[] args);
+    protected abstract IArgumentTokenizer tokenize(String[] args, T context);
 
 }
