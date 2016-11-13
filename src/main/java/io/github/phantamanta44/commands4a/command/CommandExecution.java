@@ -27,12 +27,20 @@ public class CommandExecution<T extends ICommandContext> {
         this.command = executor.getAnnotation(Command.class);
         Desc descAnnot = executor.getAnnotation(Desc.class);
         this.description = descAnnot != null ? descAnnot.value() : "No description.";
-        Alias.MultiAlias aliasAnnot = executor.getAnnotation(Alias.MultiAlias.class);
-        this.aliases = aliasAnnot != null ? Arrays.stream(aliasAnnot.value()).map(Alias::value).toArray(String[]::new) : new String[0];
-        Prereq.MultiPrereq prereqAnnot = executor.getAnnotation(Prereq.MultiPrereq.class);
-        this.prereqs = prereqAnnot != null
-                ? Arrays.stream(prereqAnnot.value()).map(Prereq::value).map(engine::resolvePrereq).collect(Collectors.toList())
-                : Collections.emptyList();
+        if (executor.isAnnotationPresent(Alias.MultiAlias.class))
+            this.aliases = Arrays.stream(executor.getAnnotation(Alias.MultiAlias.class).value())
+                    .map(Alias::value).toArray(String[]::new);
+        else if (executor.isAnnotationPresent(Alias.class))
+            this.aliases = new String[] { executor.getAnnotation(Alias.class).value() };
+        else
+            this.aliases = new String[0];
+        if (executor.isAnnotationPresent(Prereq.MultiPrereq.class))
+            this.prereqs = Arrays.stream(executor.getAnnotation(Prereq.MultiPrereq.class).value())
+                    .map(Prereq::value).map(engine::resolvePrereq).collect(Collectors.toList());
+        else if (executor.isAnnotationPresent(Prereq.class))
+            this.prereqs = Collections.singletonList(engine.resolvePrereq(executor.getAnnotation(Prereq.class).value()));
+        else
+            this.prereqs = Collections.emptyList();
         this.params = executor.getParameters();
     }
 

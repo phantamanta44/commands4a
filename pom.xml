@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.phantamanta44.commands4a</groupId>
     <artifactId>commands4a</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <build>
         <plugins>
             <plugin>

@@ -88,6 +88,16 @@ public abstract class CommandEngine<T extends ICommandContext> {
         } catch (IllegalAccessException ignored) { }
     }
 
+    public List<CommandExecution<T>> getCommands() {
+        return Collections.unmodifiableList(commands);
+    }
+
+    public Map<String, CommandExecution<T>> getAliasMap() {
+        return Collections.unmodifiableMap(aliasMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> commands.get(e.getValue())))
+        );
+    }
+
     protected abstract Prerequisite<T> resolvePrereq(String prereq);
 
     protected abstract IArgumentTokenizer tokenize(String[] args, T context);
